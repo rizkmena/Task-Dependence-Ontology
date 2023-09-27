@@ -1,0 +1,1296 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------------------------------------------------AGENTS-----------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 1.
+% An agent is an entity that has tasks and goals:
+(all a(
+	Agent(a)
+	->
+	exists t exists g(
+		Task(t) & Goal(g) & hasTask(a,t) & hasGoal(a,g)
+		)
+	)
+).
+
+% AXIOM 2.
+% Domain and range constraint on hasTask:
+(all a all t(
+    hasTask(a,t)
+    ->
+    Agent(a) & Task(t)
+    )
+).
+
+% AXIOM 3.
+% Domain and range constraint on hasGoal:
+(all a all g(
+    hasGoal(a,g)
+    ->
+    Agent(a) & Goal(g)
+    )
+).
+
+% AXIOM 4.
+% Domain and range constraint for towards:
+(all t all g(
+    towards(t,g)
+    ->
+    Task(t) & Goal(g)
+    )
+).
+
+% AXIOM 5.
+% Task definition; a task must be defined in terms of the goal it is oriented towards:
+(all t (
+    Task(t)
+    ->
+    exists g(
+        towards(t,g)
+        )
+    )
+).
+
+% AXIOM 6.
+% Inverse relation for hasTask:
+(all a all t(
+    hasTask(a,t)
+    <->
+    taskOf(t,a)
+    )
+).
+
+% AXIOM 7.
+% Inverse relation for hasGoal:
+(all a all g(
+    hasGoal(a,g)
+    <->
+    goalOf(g,a)
+    )
+).
+
+% AXIOM 8.
+% Domain and range constraint on hasActivity:
+(all a all t(
+    hasActivity(t,a)
+    ->
+    Activity(a) & Task(t)
+    )
+).
+
+% AXIOM 9.
+% Inverse relation for hasActivity:
+(all a all t(
+    hasActivity(t,a)
+    <->
+    activityOf(a,t)
+    )
+).
+
+% AXIOM 10.
+% Goal definition:
+(all g(
+	Goal(g)
+	<->
+	exists a exists s(
+		Agent(a) & State(s) & goalOf(g,a) & hasDesiredState(g,s)
+		)
+	)
+).
+
+% AXIOM 11.
+% Domain and range constraint hasDesiredState:
+(all g all s(
+    hasDesiredState(g,s)
+    ->
+    Goal(g) & State(s)
+    )
+).
+
+% AXIOM 12.
+% Inverse relation for hasDesiredState:
+(all g all s(
+    hasDesiredState(g,s)
+    <->
+    desiredStateOf(s,g)
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------------------------------------------------STATES-----------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 13.
+% All states are either complex or atomic states:
+(all s(
+    State(s)
+    ->
+    ComplexState(s) | AtomicState(s)
+    )
+).
+
+% AXIOM 14.
+% Complex states and atomic states are disjoint subclasses of state:
+(all s1 all s2(
+    ComplexState(s1) & AtomicState(s2)
+    ->
+    (s1 != s2)
+    )
+).
+
+% AXIOM 15.
+% A complex state is a state that has atleast one substate:
+(all s1(
+    ComplexState(s1)
+    ->
+    exists s2(
+        State(s2) & hasSubState(s1,s2) & (s1 != s2)
+        )
+    )
+).
+
+% AXIOM 16.
+% A complex state can be either conjunctive or disjunctive:
+(all s(
+    ComplexState(s)
+    ->
+    ConjunctiveState(s) | DisjunctiveState(s)
+    )
+).
+
+% AXIOM 17.
+% Conjunctive and disjunctive states are disjoint classes:
+(all s1 all s2(
+    ConjunctiveState(s1) & DisjunctiveState(s2)
+    ->
+    (s1 != s2)
+    )
+).
+
+% AXIOM 18.
+% An atomic state cannot have a substate:
+(all s1 all s2(
+    AtomicState(s1)
+    ->
+    -(exists s2(hasSubState(s1,s2)))
+    )
+).
+
+% AXIOM 19.
+% Domain and range constraint on hasSubState:
+(all s1 all s2(
+    hasSubState(s1,s2)
+    ->
+    State(s1) & State(s2)
+    )
+).
+
+% AXIOM 20.
+% Inverse relation for hasSubState:
+(all s1 all s2(
+    hasSubState(s1,s2)
+    <->
+    subStateOf(s2,s1)
+    )
+).
+
+% AXIOM 21.
+% If a state has a substate, then it cannot be a substate of its substate:
+(all s1 all s2(
+    hasSubState(s1,s2)
+    ->
+    -(subStateOf(s1,s2))
+    )
+).
+
+% AXIOM 22.
+% An atomic state is defined in terms of a characteristic, operator, and value:
+(all s(
+    AtomicState(s)
+    ->
+    exists c exists o exists v(
+        StateCharacteristic(c) & Operator (o) & Value(v)
+        & hasStateCharacteristic(s,c) & hasOperator(s,o)
+        & hasValue(s,v)
+        )
+    )
+).
+
+% AXIOM 23.
+% Inverse relation for hasStateCharacteristic:
+(all s all c(
+    hasStateCharacteristic(s,c)
+    <->
+    stateCharacteristicOf(c,s)
+    )
+).
+
+% AXIOM 24.
+% Inverse relation for hasOperator:
+(all s all o(
+    hasOperator(s,o)
+    <->
+    operatorOf(o,s)
+    )
+).
+
+% AXIOM 25.
+% Inverse relation for hasValue:
+(all s all v(
+    hasValue(s,v)
+    <->
+    valueOf(v,s)
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-------------------------------------------------ACTIVITIES & RESOURCES-----------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 26.
+% An activity is a function, or well-defined pattern of operation that causes a state:
+(all a(
+    Activity(a)
+    <->
+    exists s(
+        causes(a,s)
+        )
+    )
+).
+
+% AXIOM 27.
+% Domain and range constraint of causes:
+(all a all s(
+    causes(a,s)
+    ->
+    Activity(a) & State(s)
+    )
+).
+
+% AXIOM 28.
+% Domain and range constraint of performedBy. An Activity may be performed by an Agent:
+(all a all g(
+    performedBy(a,g)
+    ->
+    Activity(a) & Agent(g)
+    )
+).
+
+% AXIOM 29.
+% Domain and range constraint of activityOf. An Activity may be defined as part of a Task:
+(all a all t(
+    activityOf(a,t)
+    ->
+    Activity(a) & Task(t)
+    )
+).
+
+% AXIOM 30.
+% Inverse relationships for causes:
+(all a all s(
+    causes(a,s)
+    <->
+    causedBy(s,a)
+    )
+).
+
+% AXIOM 31.
+% Inverse relationships for performedBy:
+(all a all g(
+    performedBy(a,g)
+    <->
+    performs(g,a)
+    )
+).
+
+% AXIOM 32.
+% Inverse relationships for activityOf:
+(all a all t(
+    activityOf(a,t)
+    <->
+    hasActivity(t,a)
+    )
+).
+
+% AXIOM 33.
+% An outcome is a state that is caused by an activity:
+(all x(
+    Outcome(x)
+    ->
+    State(x) & exists a(causedBy(x,a))
+    )
+).
+
+% AXIOM 34.
+% Domain and range constraint of enables. An activity may also be enabled by a state (a precondition):
+(all a all s(
+    enables(s,a)
+    ->
+    Activity(a) & State(s)
+    )
+).
+
+% AXIOM 35.
+% Inverse relationship for enables:
+(all a all s(
+    enables(s,a)
+    <->
+    enabledBy(a,s)
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        RESOURCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 36.
+% A resource is an entity that an activity either requires or produces:
+(all r(
+    Resource(r)
+    <->
+    exists a(
+        requires(a,r) | produces(a,r)
+        )
+    )
+).
+
+% AXIOM 37.
+% Domain and range constraints on requires, which can only be between a resource and activity:
+(all a all r(
+    requires(a,r)
+    ->
+    Activity(a) & Resource(r)
+    )
+).
+
+% AXIOM 38.
+% Domain and range constraints on produces, which can only be between a resource and activity:
+(all a all r(
+    produces(a,r)
+    ->
+    Activity(a) & Resource(r)
+    )
+).
+
+% AXIOM 39.
+% Inverse relationships for requires:
+(all a all r(
+    requires(a,r)
+    <->
+    requiredBy(r,a)
+    )
+).
+
+% AXIOM 40.
+% Inverse relationships for produces:
+(all a all r(
+    produces(a,r)
+    <->
+    producedBy(r,a)
+    )
+).
+
+% AXIOM 41.
+% A resource can either be shareable or nonshareable:
+(all r(
+    Resource(r)
+    ->
+    ShareableResource(r) | NonShareableResource(r)
+    )
+).
+
+% AXIOM 42.
+% Shareable and nonshareable resources are disjoint:
+(all r1 all r2(
+    ShareableResource(r1) & NonShareableResource(r2)
+    ->
+    (r1 != r2)
+    )
+).
+
+% AXIOM 43.
+% A resource can either be consumable or nonconsumable:
+(all r(
+    Resource(r)
+    ->
+    ConsumableResource(r) | NonConsumableResource(r)
+    )
+).
+
+% AXIOM 44.
+% Consumable and nonconsumable resources are disjoint:
+(all r1 all r2(
+    ConsumableResource(r1) & NonConsumableResource(r2)
+    ->
+    (r1 != r2)
+    )
+).
+
+% AXIOM 45.
+% The uses relation is a subrelation of requires when the resource is nonconsumable:
+(all a all r(
+    uses(a,r)
+    ->
+    NonConsumableResource(r) & requires(a,r)
+    )
+).
+
+% AXIOM 46.
+% The consumes relation is a subrelation of requires when the resource is consumable:
+(all a all r(
+    consumes(a,r)
+    ->
+    ConsumableResource(r) & requires(a,r)
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        ACTIVITY DECOMPOSITION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 47.
+% An activity decomposition is a decomposition of an activity into at least two other activities
+% (which it is a composition of):
+(all d(
+    ActivityDecomposition(d)
+    ->
+    exists a1 exists a2 exists a3(
+        Activity(a1) & Activity(a2) & Activity(a3) & decompositionOf(d,a1) & compositionOf(d,a2) &
+        CompositionOf(d,a3) & (a1 != a2) & (a2 != a3) & (a1 !=a3)
+        )
+    )
+).
+
+% AXIOM 48.
+% Domain and range of decompositionOf:
+(all d all a(
+    decompositionOf(d,a)
+    ->
+    ActivityDecomposition(d) & Activity(a)
+    )
+).
+
+% AXIOM 49.
+% Domain and range of compositionOf:
+(all d all a(
+    compositionOf(d,a)
+    ->
+    ActivityDecomposition(d) & Activity(a)
+    )
+).
+
+% AXIOM 50.
+% Inverse relationship for decompositionOf:
+(all d all a(
+    decompositionOf(d,a)
+    <->
+    hasDecomposition(a, d)
+    )
+).
+
+% AXIOM 51.
+% Inverse relationship for compositionOf:
+(all d all a(
+    compositionOf(d,a)
+    <->
+    hasComposition(a, d)
+    )
+).
+
+% AXIOM 52.
+% Domain and range of hasSubActivity. If an activity can be decomposed into another activity, then the latter
+% activity is a subactivity of the former:
+(all a1 all a2(
+    hasSubActivity(a1, a2)
+    ->
+    Activity(a1) & Activity(a2)
+    )
+).
+
+% AXIOM 53.
+% An activity decomposition is a decomposition of an activity into at least two other activities:
+(all d all a1 all a2(
+    Activity(a1) & Activity(a2) & hasDecomposition(a1, d) & compositionOf(d, a2)
+    ->
+    hasSubActivity(a1, a2)
+    )
+).
+
+% AXIOM 54.
+% Inverse relations for hasSubActivity:
+(all a1 all a2(
+    hasSubActivity(a1, a2)
+    <->
+    subActivityOf(a2, a1)
+    )
+).
+
+% AXIOM 55. AND 56.
+% An activity’s decomposition may have an ordering of its subactivities that specifies the first and last activity.
+% hasFirstActivity and hasLastActivity specify the first and last activities in an activity decomposition, respectively:
+(all d all a(
+    hasFirstActivity(d, a)
+    ->
+    ActivityDecomposition(d) & Activity(a)
+    )
+).
+
+(all d all a(
+    hasLastActivity(d, a)
+    ->
+    ActivityDecomposition(d) & Activity(a)
+    )
+).
+
+% AXIOM 57. AND 58.
+% Inverse relationships for hasFirstActivity and hasLastActivity:
+(all d all a(
+    hasFirstActivity(d, a)
+    <->
+    firstActivityOf (a, d)
+    )
+).
+
+(all d all a(
+    hasLastActivity(d, a)
+    <->
+    lastActivityOf (a, d)
+    )
+).
+
+% AXIOM 59. AND 60.
+% An activity may be either be succeeded or preceded by another activity:
+(all a1 all a2(
+    hasSuccessor(a1, a2)
+    ->
+    Activity(a1) & Activity(a2)
+    )
+).
+
+(all a1 all a2(
+    hasPredecessor(a1, a2)
+    ->
+    Activity(a1) & Activity(a2)
+    )
+).
+
+% AXIOM 61. AND 62.
+% First and last activities in a decomposition are not preceded or succeeded by any activity, respectively:
+(all a1 all d(
+    hasFirstActivity(d, a1)
+    ->
+    -(exists a2(hasPredecessor(a1, a2)))
+    )
+).
+
+(all a1 all d(
+    hasFirstActivity(d, a1)
+    ->
+    -(exists a2(hasSuccessor(a1, a2)))
+    )
+).
+
+% AXIOM 63.
+% An activity cannot both precede and succeed the same activity:
+(all a1 all a2(
+    hasSuccessor(a1, a2)
+    ->
+    -(hasPredecessor(a1, a2))
+    )
+).
+
+% AXIOM 64.
+% Inverse relationships for hasSuccessor and hasPredecessor:
+(all a1 all a2(
+    hasSuccessor(a1, a2)
+    <->
+    hasPredecessor(a2, a1)
+    )
+).
+
+% AXIOM 65. AND 66.
+% If an activity’s subactivity requires or produces a resource, then so does the activity:
+(all a1 all a2 all r(
+    subActivityOf(a2, a1) & requires(a2, r)
+    ->
+    requires(a1, r)
+    )
+).
+
+(all a1 all a2 all r(
+    subActivityOf(a2, a1) & produces(a2, r)
+    ->
+    produces(a1, r)
+    )
+).
+
+% AXIOM 67. AND 68.
+% If an activity requires or produces a resource, then it must have a subactivity that requires or produces the resource:
+(all a1 all d all r(
+    hasDecomposition(a1, d) & requires(a1, r)
+    ->
+    exists a2(
+        hasSubActivity(a1, a2) & requires(a2, d)
+        )
+    )
+).
+
+(all a1 all d all r(
+    hasDecomposition(a1, d) & produces(a1, r)
+    ->
+    exists a2(
+        hasSubActivity(a1, a2) & produces(a2, d)
+        )
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        ACTIVITY CHARACTERISTICS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 69.
+% An activity may have an activity characteristic. Domain and range constraint for hasActivityCharacteristic:
+(all a all c(
+    hasActivityCharacteristic(a, c)
+    ->
+    Activity(a) & ActivityCharacteristic(c)
+    )
+).
+
+
+% AXIOM 70.
+% Inverse relation for hasActivityCharacteristic:
+(all a all c(
+    hasActivityCharacteristic(a, c)
+    <->
+    activityCharacteristicOf(c, a)
+    )
+).
+
+% AXIOM 71.
+% Each activity characteristic must be defined as a characteristic of a specific activity:
+(all c(
+    ActivityCharacteristic(c)
+    ->
+    exists a(
+        activityCharacteristicOf(c,a)
+        )
+    )
+).
+
+% AXIOM 72.
+% Each activity characteristic belongs to a single activity:
+(all a1 all a2 all c(
+    hasActivityCharacteristic(a1, c) & hasActivityCharacteristic(a2, c)
+    ->
+    (a1 = a2)
+    )
+).
+
+% AXIOM 73. TO 77.
+% The five main types of activity characteristics:
+(all c(
+    TemporalCharacteristic(c)
+    ->
+    ActivityCharacteristic(c)
+    )
+).
+
+(all c(
+    SpacialCharacteristic(c)
+    ->
+    ActivityCharacteristic(c)
+    )
+).
+
+(all c(
+    InputCharacteristic(c)
+    ->
+    ActivityCharacteristic(c)
+    )
+).
+
+(all c(
+    ProcessCharacteristic(c)
+    ->
+    ActivityCharacteristic(c)
+    )
+).
+
+(all c(
+    OutputCharacteristic(c)
+    ->
+    ActivityCharacteristic(c)
+    )
+).
+
+% AXIOM 78. TO 80.
+% The five main types of activity characteristics:
+(all c(
+    Start(c)
+    ->
+    TemporalCharacteristic(c)
+    )
+).
+
+(all c(
+    End(c)
+    ->
+    TemporalCharacteristic(c)
+    )
+).
+
+(all c(
+    Duration(c)
+    ->
+    TemporalCharacteristic(c)
+    )
+).
+
+% AXIOMS 81.
+% Type of spatial characteristics:
+(all c(
+    Location(c)
+    ->
+    SpacialCharacteristic(c)
+    )
+).
+
+% AXIOM 82. TO 84.
+% The five main types of activity characteristics:
+(all c(
+    Material(c)
+    ->
+    InputCharacteristic(c)
+    )
+).
+
+(all c(
+    ResourceConsumption(c)
+    ->
+    InputCharacteristic(c)
+    )
+).
+
+(all c(
+    Cost(c)
+    ->
+    InputCharacteristic(c)
+    )
+).
+
+% AXIOM 85. AND 86.
+% The five main types of activity characteristics:
+(all c(
+    Implementation(c)
+    ->
+    ProcessCharacteristic(c)
+    )
+).
+
+(all c(
+    Method(c)
+    ->
+    ProcessCharacteristic(c)
+    )
+).
+
+% AXIOM 87. TO 89.
+% The five main types of activity characteristics:
+(all c(
+    Quantity(c)
+    ->
+    OutputCharacteristic(c)
+    )
+).
+
+(all c(
+    Quality(c)
+    ->
+    OutputCharacteristic(c)
+    )
+).
+
+(all c(
+    Design(c)
+    ->
+    OutputCharacteristic(c)
+    )
+).
+
+% AXIOM 90. TO 94.
+% There can be at most a single instance of a characteristic of an activity for the following types of characteristics:
+(all a all c1 all c2(
+    hasActivityCharacteristic(a, c1) & hasActivityCharacteristic(a, c2)
+    & (
+        (Start(c1) & Start(c2))
+        | (End(c1) & End(c2))
+        | (Duration(c1) & Duration(c2))
+        )
+    ->
+    (c1 = c2)
+    )
+).
+
+(all a all c1 all c2(
+    hasActivityCharacteristic(a, c1) & hasActivityCharacteristic(a, c2)
+    & (
+        (Design(c1) & Design(c2))
+        | (Quality(c1) & Quality(c2))
+        | (Quantity(c1) & Quantity(c2))
+        )
+    ->
+    (c1 = c2)
+    )
+).
+
+(all a all c1 all c2(
+    hasActivityCharacteristic(a, c1) & hasActivityCharacteristic(a, c2)
+    & (
+        (Material(c1) & Material(c2))
+        | (ResourceConsumption(c1) & ResourceConsumption(c2))
+        | (Cost(c1) & Cost(c2))
+        )
+    ->
+    (c1 = c2)
+    )
+).
+
+(all a all c1 all c2(
+    hasActivityCharacteristic(a, c1) & hasActivityCharacteristic(a, c2)
+    & (
+        (Location(c1) & Location(c2))
+        )
+    ->
+    (c1 = c2)
+    )
+).
+
+(all a all c1 all c2(
+    hasActivityCharacteristic(a, c1) & hasActivityCharacteristic(a, c2)
+    & (
+        (Implementation(c1) & Implementation(c2))
+        | (Method(c1) & Method(c2))
+        )
+    ->
+    (c1 = c2)
+    )
+).
+
+% AXIOM 95. TO 99.
+% Disjointness of activity characteristic classes:
+(all c(
+    -(
+        (TemporalCharacteristic(c) & SpatialCharacteristic(c))
+        | (TemporalCharacteristic(c) & InputCharacteristic(c))
+        | (TemporalCharacteristic(c) & ProcessCharacteristic(c))
+        | (TemporalCharacteristic(c) & OutputCharacteristic(c))
+        | (SpatialCharacteristic(c) & InputCharacteristic(c))
+        | (SpatialCharacteristic(c) & ProcessCharacteristic(c))
+        | (SpatialCharacteristic(c) & OutputCharacteristic(c))
+        | (InputCharacteristic(c) & ProcessCharacteristic(c))
+        | (InputCharacteristic(c) & OutputCharacteristic(c))
+        | (ProcessCharacteristic(c) & OutputCharacteristic(c))
+        )
+    )
+).
+
+(all c(
+    -(
+        (Start(c) & Duration(c))
+        | (End(c) & Duration(c))
+        | (Start(c) & End(c))
+        )
+    )
+).
+
+(all c(
+    -(
+        (Design(c) & Quality(c))
+        | (Design(c) & Quantity(c))
+        | (Quality(c) & Quantity(c))
+        )
+    )
+).
+
+(all c(
+    -(
+        (ResourceConsumption(c) & Cost(c))
+        | (Cost(c) & Material(c))
+        | (Material(c) & ResourceConsumption(c))
+        )
+    )
+).
+
+(all c(
+    -(
+        (Implementation(c) & Method(c))
+        )
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------------------------------------------------BASES OF DEPENDENCE----------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 100.
+% A basis of dependence is defined in terms of the dependum through which it exists:
+(all b(
+    BasisOfDependence(b)
+    <->
+    exists d(
+        hasDependum(b,d)
+        )
+    )
+).
+
+% AXIOM 101.
+% Inverse relation for hasDependum:
+(all b all d(
+    hasDependum(b,d)
+    <->
+    dependumOf(d,b)
+    )
+).
+
+% AXIOM 102.
+% A basis of dependence has exactly one dependum:
+(all b all d1 all d2(
+    hasDependum(b,d1) & hasDependum(b,d2)
+    ->
+    (d1 = d2)
+    )
+).
+
+% AXIOM 103.
+% Domain and range constraint on constrains. A basis of dependence may constrain by a task, activity, or particular characteristic of an activity:
+(all b all x(
+    constrains(b,x)
+    ->
+    BasisOfDependence(b) & (
+        Task(x) | Activity(x) | ActivityCharacteristic(x)
+        )
+    )
+).
+
+% AXIOM 104.
+% Domain and range constraint on alteredBy. A basis of dependence may be alteredBy a task, activity, or particular characteristic of an activity:
+(all b all x(
+    alteredBy(b,x)
+    ->
+    BasisOfDependence(b) & (
+        Task(x) | Activity(x) | ActivityCharacteristic(x)
+        )
+    )
+).
+
+% AXIOM 105.
+% Inverse relations for constrains:
+(all b all x(
+    constrains(b,x)
+    <->
+    constrainedBy(x,b)
+    )
+).
+
+% AXIOM 106.
+% Inverse relations for alteredBy:
+(all b all x(
+    alteredBy(b,x)
+    <->
+    alters(x,b)
+    )
+).
+
+% AXIOM 107.
+% Availability is a type of BasisOfDependence where the dependum must be a resource:
+(all b(
+    Availability(b)
+    ->
+    BasisOfDependence(b) & exists r(
+        Resource(r) & hasDependum(b,r)
+        )
+    )
+).
+
+% AXIOM 108.
+% Functionality is a type of BasisOfDependence where the dependum must be an activity:
+(all b(
+    Availability(b)
+    ->
+    BasisOfDependence(b) & exists a(
+        Activity(a) & hasDependum(b,a)
+        )
+    )
+).
+
+% AXIOM 109. TO 111.
+% Complementarity, Compatibility, and Uncertainty are types of BasisOfDependence where the dependum must be a
+% characteristic (either state or activity):
+(all b(
+    Complementarity(b) | Compatibility(b) | Uncertainty(b)
+    ->
+    BasisOfDependence(b) & exists c(
+        (StateCharacteristic(c) | ActivityCharacteristic(c)) & hasDependum(b,c)
+        )
+    )
+).
+
+% AXIOM 112.
+% Complexity is a type of BasisOfDependence that does not necessarily specify the type of dependum:
+(all b(
+    Complexity(b)
+    ->
+    BasisOfDependence(b)
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------DEPENDENCE-----------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AXIOM 113.
+% A dependsOn relation can only be between two tasks, activities, or activity parameters:
+(all x all y(
+    dependsOn(x,y)
+    ->
+    ((Task(x) & Task(y)) | (Activity(x) & Activity(y))
+    | (ActivityCharacteristic(x) & ActivityCharacteristic(y)))
+    )
+).
+
+% AXIOM 114.
+% An activity characteristic depends on another activity characteristic if there exists a basis of dependence that
+% constrains the former activity characteristic and is also altered by the latter characteristic:
+(all b all a1 all a2 all c1 all c2(
+    hasActivityCharacteristic(a1,c1) & hasActivityCharacteristic(a2,c2)
+    & constrains(b,c2) & alteredBy(b,c1) & (c1 !=c2)
+    ->
+    dependsOn(c2,c1)
+    )
+).
+
+% AXIOM 115.
+% If an activity characteristic depends on another activity characteristic, then the activity of the former
+% activity characteristic is dependent on the activity of the second activity characteristic:
+(all a1 all a2 all c1 all c2(
+    Activity(a1) & Activity(a2) & (a1 != a2) & hasActivityCharacteristic(a1,c1) & hasActivityCharacteristic(a2,c2)
+    & dependsOn(c2,c1)
+    ->
+    dependsOn(a2,a1)
+    )
+).
+
+% AXIOM 116.
+% If an activity depends on another activity, then the task that the former activity is a part of is dependent on the
+% task that the second activity is a part of:
+(all a1 all a2 all t1 all t2(
+    Task(t1) & Task(t2) & hasActivity(t1,a1) & hasActivity(t1,a1)
+    & (t1 != t2) & dependsOn(a2,a1)
+    ->
+    dependsOn(t2,t1)
+    )
+).
+
+% AXIOM 117.
+% An activity depends on another activity if there exists a basis of dependence that constrains the former activity
+% and is also altered by a characteristic of the latter activity:
+(all a1 all a2 all b all c(
+    Activity(a1) & Activity(a2) & constrains(b,a1) & alteredBy(b,c) & hasActivityCharacteristic(a2,c)
+    & (a1 != a2)
+    ->
+    dependsOn(a1,a2)
+    )
+).
+
+% AXIOM 118.
+% An activity depends on another activity if there exists a basis of dependence that constrains a characteristic of
+% the former activity and is also altered by the latter activity:
+(all a1 all a2 all b all c(
+    Activity(a1) & Activity(a2) & constrains(b,c) & alteredBy(b,a2) & hasActivityCharacteristic(a1,c)
+    & (a1 != a2)
+    ->
+    dependsOn(a1,a2)
+    )
+).
+
+% AXIOM 119.
+% An activity depends on another activity if there exists a basis of dependence that constrains the former activity
+% and is also altered by the latter activity:
+(all b all a1 all a2(
+    Activity(a1) & Activity(a2) & constrains(b,a1) & alteredBy(b,a2) & (a1 != a2)
+    ->
+    dependsOn(a1,a2)
+    )
+).
+
+% AXIOM 120.
+% A task depends on another task if there exists a basis of dependence that con- straints the former task and is
+% also altered by the task:
+(all b all t1 all t2(
+    Task(t1) & Task(t2) & constrains(b,t1) & alteredBy(b,t2) & (t1 != t2)
+    ->
+    dependsOn(t1,t2)
+    )
+).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------------------------------------ADDITIONAL DISJOINTNESS AXIOMS-----------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(all x(
+    Activity(x)
+    ->
+    -(
+        ActivityCharacteristic(x)
+        | ActivityDecomposition(x)
+        | Agent(x)
+        | BasisOfDependence(x)
+        | Goal(x)
+        | Resource(x)
+        | State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    ActivityCharacteristic(x)
+    ->
+    -(
+        ActivityDecomposition(x)
+        | Agent(x)
+        | BasisOfDependence(x)
+        | Goal(x)
+        | Resource(x)
+        | State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    ActivityDecomposition(x)
+    ->
+    -(
+        Agent(x)
+        | BasisOfDependence(x)
+        | Goal(x)
+        | Resource(x)
+        | State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    Agent(x)
+    ->
+    -(
+        BasisOfDependence(x)
+        | Goal(x)
+        | Resource(x)
+        | State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    BasisOfDependence(x)
+    ->
+    -(
+        Goal(x)
+        | Resource(x)
+        | State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    Goal(x)
+    ->
+    -(
+        Resource(x)
+        | State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    Resource(x)
+    ->
+    -(
+        State(x)
+        | StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    State(x)
+    ->
+    -(
+        StateCharacteristic(x)
+        | Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    StateCharacteristic(x)
+    ->
+    -(
+        Operator(x)
+        | Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    Operator(x)
+    ->
+    -(
+        Value(x)
+        | Task(x)
+        )
+    )
+).
+
+(all x(
+    Value(x)
+    ->
+    -(
+        Task(x)
+        )
+    )
+).
+
+
+
